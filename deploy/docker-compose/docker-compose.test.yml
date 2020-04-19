@@ -1,0 +1,33 @@
+version: '3.3'
+
+services:
+  sut:
+    image: ${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG}
+    command:
+      - -test.v
+      - -host=127.0.0.1
+      - -portmapper-port=${PORTMAPPER_PORT}
+      - -status-port=${STATUS_PORT}
+      - -nlockmgr-port=${NLOCKMGR_PORT}
+      - -rquotad-port=${RQUOTAD_PORT}
+      - -nfs-port=${NFS_PORT}
+      - -mountd-port=${MOUNTD_PORT}
+    read_only: true
+    cap_drop:
+      - ALL
+    labels:
+      app: contained-ganesha
+      component: sut
+    depends_on:
+      - rpcbind
+      - rpc.statd
+      - dbus-daemon
+      - nfs-ganesha
+    network_mode: "service:pod"
+    volumes:
+      - type: volume
+        source: dbus-daemon-run
+        target: /run/dbus
+        read_only: true
+        volume:
+          nocopy: true

@@ -1,0 +1,148 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build container images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Login to container image registry
+        run: |
+          echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull container images from registry
+        run: |
+          source .env
+          docker pull ${RPCBIND_IMAGE}:${RPCBIND_TAG} || true
+          docker pull ${RPC_STATD_IMAGE}:${RPC_STATD_TAG} || true
+          docker pull ${DBUS_DAEMON_IMAGE}:${DBUS_DAEMON_TAG} || true
+          docker pull ${NFS_GANESHA_IMAGE}:${NFS_GANESHA_TAG} || true
+          docker pull ${CONTAINED_GANESHA_TEST_IMAGE}:${CONTAINED_GANESHA_TEST_TAG} || true
+      - name: Build container images
+        run: |
+          make containers container-contained-ganesha-test
+      - name: Export container images
+        run: |
+          mkdir container-images
+          source .env
+
+          docker save \
+              ${LOCAL_RPCBIND_IMAGE}:${LOCAL_RPCBIND_TAG} \
+              ${LOCAL_RPC_STATD_IMAGE}:${LOCAL_RPC_STATD_TAG} \
+              ${LOCAL_DBUS_DAEMON_IMAGE}:${LOCAL_DBUS_DAEMON_TAG} \
+              ${LOCAL_NFS_GANESHA_IMAGE}:${LOCAL_NFS_GANESHA_TAG} \
+              ${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG} \
+              | gzip > container-images/build.tar.gz
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: container-images
+          path: container-images
+
+  test-docker-compose:
+    name: Test docker-compose
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Retrieve artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: container-images
+      - name: Import container images
+        run: |
+          cat container-images/build.tar.gz | gzip -d | docker load
+      - name: Test
+        run: |
+          make -C deploy/docker-compose check-nobuild
+      - name: Cleanup
+        run: |
+          make -C deploy/docker-compose down
+
+  test-kubernetes:
+    name: Test Kubernetes (using Kind)
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Retrieve artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: container-images
+      - name: Build manifests
+        run: |
+          make -C deploy/kubernetes manifests
+      - name: Import container images
+        run: |
+          cat container-images/build.tar.gz | gzip -d | docker load
+      - name: Start Kind cluster
+        uses: helm/kind-action@v1.0.0-rc.1
+        with:
+          cluster_name: kind
+      - name: Import Docker images into Kind cluster
+        run: |
+          make -C deploy/kubernetes kind-load-docker-images-nobuild kind-load-cgt-image-nobuild
+      - name: Deploy
+        run: |
+          make -C deploy/kubernetes kubectl-local-apply
+      - name: Test
+        run: |
+          make -C deploy/kubernetes check
+      - name: Cleanup
+        run: |
+          make -C deploy/kubernetes kubectl-local-delete
+
+  publish:
+    name: Publish container images
+    needs:
+      - build
+      - test-docker-compose
+      - test-kubernetes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Retrieve artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: container-images
+      - name: Import container images
+        run: |
+          cat container-images/build.tar.gz | gzip -d | docker load
+      - name: Tag container images
+        run: |
+          source .env
+          docker tag ${LOCAL_RPCBIND_IMAGE}:${LOCAL_RPCBIND_TAG} ${RPCBIND_IMAGE}:${RPCBIND_TAG}
+          docker tag ${LOCAL_RPC_STATD_IMAGE}:${LOCAL_RPC_STATD_TAG} ${RPC_STATD_IMAGE}:${RPC_STATD_TAG}
+          docker tag ${LOCAL_DBUS_DAEMON_IMAGE}:${LOCAL_DBUS_DAEMON_TAG} ${DBUS_DAEMON_IMAGE}:${DBUS_DAEMON_TAG}
+          docker tag ${LOCAL_NFS_GANESHA_IMAGE}:${LOCAL_NFS_GANESHA_TAG} ${NFS_GANESHA_IMAGE}:${NFS_GANESHA_TAG}
+          docker tag ${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG} ${CONTAINED_GANESHA_TEST_IMAGE}:${CONTAINED_GANESHA_TEST_TAG}
+      - name: Login to container image registry
+        run: |
+          echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push container images
+        run: |
+          source .env
+          docker push ${RPCBIND_IMAGE}:${RPCBIND_TAG}
+          docker push ${RPC_STATD_IMAGE}:${RPC_STATD_TAG}
+          docker push ${DBUS_DAEMON_IMAGE}:${DBUS_DAEMON_TAG}
+          docker push ${NFS_GANESHA_IMAGE}:${NFS_GANESHA_TAG}
+          docker push ${CONTAINED_GANESHA_TEST_IMAGE}:${CONTAINED_GANESHA_TEST_TAG}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
