@@ -1,0 +1,14 @@
+version: '3.3'
+
+services:
+  rpcbind:
+    image: ${LOCAL_RPCBIND_IMAGE}:${LOCAL_RPCBIND_TAG}
+
+  rpc.statd:
+    image: ${LOCAL_RPC_STATD_IMAGE}:${LOCAL_RPC_STATD_TAG}
+
+  dbus-daemon:
+    image: ${LOCAL_DBUS_DAEMON_IMAGE}:${LOCAL_DBUS_DAEMON_TAG}
+
+  nfs-ganesha:
+    image: ${LOCAL_NFS_GANESHA_IMAGE}:${LOCAL_NFS_GANESHA_TAG}

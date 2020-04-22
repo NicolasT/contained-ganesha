@@ -1,0 +1,12 @@
+- op: add 
+  path: /spec/template/spec/containers/0/imagePullPolicy
+  value: Never
+- op: add
+  path: /spec/template/spec/containers/1/imagePullPolicy
+  value: Never
+- op: add
+  path: /spec/template/spec/containers/2/imagePullPolicy
+  value: Never
+- op: add
+  path: /spec/template/spec/containers/3/imagePullPolicy
+  value: Never
