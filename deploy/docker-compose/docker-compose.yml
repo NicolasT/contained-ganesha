@@ -1,0 +1,208 @@
+version: '3.3'
+
+services:
+  pod:
+    image: ${POD_IMAGE}:${POD_TAG}
+    cap_drop:
+      - ALL
+    read_only: true
+    restart: unless-stopped
+    labels:
+      app: contained-ganesha
+      component: pod
+    networks:
+      - default
+    expose:
+      - ${PORTMAPPER_PORT}/tcp #rpcbind/portmapper
+      - ${PORTMAPPER_PORT}/udp #rpcbind/portmapper
+      - ${STATUS_PORT}/tcp #rpc.statd/status
+      - ${STATUS_PORT}/udp #rpc.statd/status
+      - ${NLOCKMGR_PORT}/tcp #nfs-ganesha/nlockmgr
+      - ${NLOCKMGR_PORT}/udp #nfs-ganesha/nlockmgr
+      - ${RQUOTAD_PORT}/tcp #nfs-ganesha/rquotad
+      - ${RQUOTAD_PORT}/udp #nfs-ganesha/rquotad
+      - ${NFS_PORT}/tcp #nfs-ganesha/nfs
+      - ${NFS_PORT}/udp #nfs-ganesha/nfs
+      - ${MOUNTD_PORT}/tcp #nfs-ganesha/mountd
+      - ${MOUNTD_PORT}/udp #nfs-ganesha/mountd
+
+  rpcbind:
+    image: ${RPCBIND_IMAGE}:${RPCBIND_TAG}
+    read_only: true
+    restart: on-failure
+    cap_drop:
+      - ALL
+    cap_add:
+      - DAC_OVERRIDE
+      - CHOWN
+      - NET_BIND_SERVICE
+      - SETGID
+      - SETUID
+    labels:
+      app: contained-ganesha
+      component: rpcbind
+    network_mode: "service:pod"
+    volumes:
+      - type: volume
+        source: run
+        target: /run
+        volume:
+          nocopy: true
+
+  rpc.statd:
+    image: ${RPC_STATD_IMAGE}:${RPC_STATD_TAG}
+    environment:
+      STATUS_PORT:
+    read_only: true
+    restart: on-failure
+    cap_drop:
+      - ALL
+    cap_add:
+      - DAC_OVERRIDE
+      - CHOWN
+      - NET_BIND_SERVICE
+      - SETGID
+      - SETPCAP
+      - SETUID
+    labels:
+      app: contained-ganesha
+      component: rpc.statd
+    depends_on:
+      - rpcbind
+    network_mode: "service:pod"
+    volumes:
+      - type: volume
+        source: run
+        target: /run
+        volume:
+          nocopy: true
+      - type: volume
+        source: rpc.statd-lib
+        target: /var/lib/nfs
+        volume:
+          nocopy: true
+
+  dbus-daemon:
+    image: ${DBUS_DAEMON_IMAGE}:${DBUS_DAEMON_TAG}
+    read_only: true
+    restart: on-failure
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETGID
+      - SETPCAP
+      - SETUID
+    labels:
+      app: contained-ganesha
+      component: dbus-daemon
+    network_mode: "none"
+    volumes:
+      - type: volume
+        source: dbus-daemon-run
+        target: /run/dbus
+        volume:
+          nocopy: true
+      - type: volume
+        source: dbus-daemon-lib
+        target: /var/lib/dbus
+        volume:
+          nocopy: true
+
+  nfs-ganesha:
+    image: ${NFS_GANESHA_IMAGE}:${NFS_GANESHA_TAG}
+    environment:
+      NLOCKMGR_PORT:
+      RQUOTAD_PORT:
+      NFS_PORT:
+      MOUNTD_PORT:
+    read_only: true
+    restart: on-failure
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - DAC_READ_SEARCH
+      - FOWNER
+      - FSETID
+      - NET_BIND_SERVICE
+      - SETGID
+      - SETUID
+    security_opt:
+      # TODO Create a proper seccomp profile
+      - seccomp:unconfined
+    labels:
+      app: contained-ganesha
+      component: nfs-ganesha
+    depends_on:
+      - rpcbind
+      - rpc.statd
+      - dbus-daemon
+    network_mode: "service:pod"
+    volumes:
+      - type: volume
+        source: run
+        target: /run
+        volume:
+          nocopy: true
+      - type: volume
+        source: dbus-daemon-run
+        target: /run/dbus
+        read_only: true
+        volume:
+          nocopy: true
+      - type: volume
+        source: nfs-ganesha-lib
+        target: /var/lib/nfs/ganesha
+        volume:
+          nocopy: true
+      - type: tmpfs
+        target: /tmp
+      - type: bind
+        source: ./ganesha-exports.conf
+        target: /etc/ganesha/ganesha.conf.d/exports.conf
+        read_only: true
+
+volumes:
+  # Note: we use a *shared* `/run` (across all containers), since this volume
+  # contains special files (or rather, sockets) that are used between them,
+  # e.g., `rpcbind.sock` or the DBus system bus socket.
+  run:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: size=16m
+    labels:
+      app: contained-ganesha
+
+  rpc.statd-lib:
+    driver: local
+    labels:
+      app: contained-ganesha
+      component: rpc.statd
+
+  dbus-daemon-run:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: size=16m
+    labels:
+      app: contained-ganesha
+      component: dbus-daemon
+
+  dbus-daemon-lib:
+    driver: local
+    labels:
+      app: contained-ganesha
+      component: dbus-daemon
+
+  nfs-ganesha-lib:
+    driver: local
+    labels:
+      app: contained-ganesha
+      component: nfs-ganesha
+
+networks:
+  default:

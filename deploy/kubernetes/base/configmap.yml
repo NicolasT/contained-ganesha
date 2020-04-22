@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nfs-ganesha
+  labels:
+    app: contained-ganesha
+    component: nfs-ganesha
+data:
+  local.conf: ''
+  exports.conf: |
+    EXPORT
+    {
+        Export_ID=1;
+        Path = "/mem";
+        Pseudo = "/mem";
+        Access_Type = RW;
+        FSAL {
+            Name = MEM;
+        }
+    }
