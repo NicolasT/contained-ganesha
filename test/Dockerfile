@@ -14,8 +14,8 @@ ENV GOOS=${GOOS:-linux}
 ENV GOARCH=${GOARCH:-amd64}
 RUN go test -v -c -o bin/contained-ganesha-test ./...
 
-FROM docker.io/alpine:3
-COPY --from=build /go/src/contained-ganesha-test/bin/contained-ganesha-test /usr/local/bin/contained-ganesha-test
+FROM scratch
+COPY --from=build /go/src/contained-ganesha-test/bin/contained-ganesha-test /contained-ganesha-test
 
-ENTRYPOINT ["/usr/local/bin/contained-ganesha-test"]
+ENTRYPOINT ["/contained-ganesha-test"]
 CMD ["-test.v"]
