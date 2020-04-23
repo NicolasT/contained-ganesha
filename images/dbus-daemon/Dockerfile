@@ -1,4 +1,6 @@
-FROM docker.io/centos:8
+ARG BASE_IMAGE=docker.io/centos
+ARG BASE_IMAGE_TAG=8
+FROM ${BASE_IMAGE}:${BASE_IMAGE_TAG}
 
 VOLUME ["/run", "/var/lib/dbus"]
 

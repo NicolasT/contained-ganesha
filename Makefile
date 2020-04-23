@@ -19,6 +19,8 @@ containers: $(foreach c,$(CONTAINERS),container-$(c)) ## Build all container ima
 docker-build = \
 	DOCKER_BUILDKIT=1 \
 	$(DOCKER) build \
+		--build-arg BASE_IMAGE=$(BASE_IMAGE) \
+		--build-arg BASE_IMAGE_TAG=$(BASE_IMAGE_TAG) \
 		$(BUILD_ARGS) \
 		$(CACHE_FROM) \
 		--compress \
