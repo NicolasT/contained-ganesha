@@ -1,4 +1,6 @@
+DATE ?= date
 DOCKER ?= docker
+GIT ?= git
 
 TOP_SRCDIR := .
 
@@ -30,14 +32,25 @@ docker-build = \
 		--tag $(1) \
 		$(dir $<)
 
+build-date = $(shell $(DATE) -u +"%Y-%m-%dT%H:%M:%SZ")
+git-version = $(shell $(GIT) describe --tags --dirty --broken)
+git-rev = $(shell $(GIT) log -n1 --format=%H)
+
 default-labels = \
-	--label app=contained-ganesha \
-	--label component=$(1)
+	--label org.opencontainers.image.created=$(call build-date) \
+	--label org.opencontainers.image.version=$(call git-version) \
+	--label org.opencontainers.image.revision=$(call git-rev) \
+	--label org.opencontainers.image.ref.name=$(2) \
+	\
+	--label org.label-schema.build-date=$(call build-date) \
+	--label org.label-schema.version=$(call git-version) \
+	--label org.label-schema.vcs-ref=$(call git-rev)
+
 
 include $(ENV_FILE)
 
 container-rpcbind: BUILD_ARGS=--build-arg PORTMAPPER_PORT=$(PORTMAPPER_PORT)
-container-rpcbind: LABELS=$(call default-labels,rpcbind)
+container-rpcbind: LABELS=$(call default-labels,rpcbind,$(RPCBIND_IMAGE):$(RPCBIND_TAG))
 container-rpcbind: CACHE_FROM= \
 			--cache-from $(RPCBIND_IMAGE):$(RPCBIND_TAG) \
 			--cache-from $(RPC_STATD_IMAGE):$(RPC_STATD_TAG) \
@@ -50,7 +63,7 @@ container-rpcbind: \
 .PHONY: container-rpcbind
 
 container-rpc.statd: BUILD_ARGS=--build-arg STATUS_PORT=$(STATUS_PORT)
-container-rpc.statd: LABELS=$(call default-labels,rpc.statd)
+container-rpc.statd: LABELS=$(call default-labels,rpc.statd,$(RPC_STATD_IMAGE):$(RPC_STATD_TAG))
 container-rpc.statd: CACHE_FROM= \
 			--cache-from $(RPCBIND_IMAGE):$(RPCBIND_TAG) \
 			--cache-from $(RPC_STATD_IMAGE):$(RPC_STATD_TAG) \
@@ -62,7 +75,7 @@ container-rpc.statd: \
 	$(call docker-build,$(LOCAL_RPC_STATD_IMAGE):$(LOCAL_RPC_STATD_TAG))
 .PHONY: container-rpc.statd
 
-container-dbus-daemon: LABELS=$(call default-labels,dbus-daemon)
+container-dbus-daemon: LABELS=$(call default-labels,dbus-daemon,$(DBUS_DAEMON_IMAGE):$(DBUS_DAEMON_TAG))
 container-dbus-daemon: CACHE_FROM=--cache-from $(DBUS_DAEMON_IMAGE):$(DBUS_DAEMON_TAG)
 container-dbus-daemon: \
 		images/dbus-daemon/Dockerfile \
@@ -76,7 +89,7 @@ container-nfs-ganesha: BUILD_ARGS= \
 				--build-arg RQUOTAD_PORT=$(RQUOTAD_PORT) \
 				--build-arg NFS_PORT=$(NFS_PORT) \
 				--build-arg MOUNTD_PORT=$(MOUNTD_PORT)
-container-nfs-ganesha: LABELS=$(call default-labels,nfs-ganesha)
+container-nfs-ganesha: LABELS=$(call default-labels,nfs-ganesha,$(NFS_GANESHA_IMAGE):$(NFS_GANESHA_TAG))
 container-nfs-ganesha: CACHE_FROM= \
 				--cache-from $(RPCBIND_IMAGE):$(RPCBIND_TAG) \
 				--cache-from $(RPC_STATD_IMAGE):$(RPC_STATD_TAG) \
@@ -89,7 +102,7 @@ container-nfs-ganesha: \
 	$(call docker-build,$(LOCAL_NFS_GANESHA_IMAGE):$(LOCAL_NFS_GANESHA_TAG))
 .PHONY: container-nfs-ganesha
 
-container-contained-ganesha-test: LABELS=$(call default-labels,contained-ganesha-test)
+container-contained-ganesha-test: LABELS=$(call default-labels,contained-ganesha-test,$(CONTAINED_GANESHA_TEST_IMAGE):$(CONTAINED_GANESHA_TEST_TAG))
 container-contained-ganesha-test: CACHE_FROM=--cache-from $(CONTAINED_GANESHA_TEST_IMAGE):$(CONTAINED_GANESHA_TEST_TAG)
 container-contained-ganesha-test: test/Dockerfile
 	$(call docker-build,$(LOCAL_CONTAINED_GANESHA_TEST_IMAGE):$(LOCAL_CONTAINED_GANESHA_TEST_TAG))
