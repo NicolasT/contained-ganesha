@@ -16,6 +16,9 @@ for inspiration.
 Alternatively, if the local images are accessible from your cluster, run
 `make kubectl-local-apply` (and later, `make kubectl-local-delete`).
 
+The default configuration will export an in-memory filesystem (the `mem` FSAL)
+as `/mem`. The service is exposed using the `nfs-ganesha` *Service*.
+
 Using Kind
 ----------
 When using a [Kind](https://kind.sigs.k8s.io/) cluster, run
