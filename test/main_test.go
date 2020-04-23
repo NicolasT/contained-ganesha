@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/vmware/go-nfs-client/nfs/util"
 )
@@ -16,6 +17,9 @@ var (
 	RquotadPort    int
 	NfsPort        int
 	MountdPort     int
+
+	timeoutS int
+	Timeout  time.Duration
 )
 
 func init() {
@@ -26,10 +30,13 @@ func init() {
 	flag.IntVar(&RquotadPort, "rquotad-port", 875, "port of the rquotad service")
 	flag.IntVar(&NfsPort, "nfs-port", 2049, "port of the NFS service")
 	flag.IntVar(&MountdPort, "mountd-port", 20048, "port of the mountd service")
+	flag.IntVar(&timeoutS, "service-timeout", 120, "timeout to wait for services to appear")
 }
 
 func TestMain(m *testing.M) {
 	flag.Parse()
+
+	Timeout = time.Duration(timeoutS) * time.Second
 
 	util.DefaultLogger.SetDebug(testing.Verbose())
 
