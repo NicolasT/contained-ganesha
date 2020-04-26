@@ -110,8 +110,8 @@ jobs:
         run: |
           make -C deploy/kubernetes kubectl-local-delete
 
-  publish:
-    name: Publish container images
+  publish-github:
+    name: Publish container images to GitHub Packages
     if: github.ref == 'refs/heads/master'
     needs:
       - build
@@ -149,5 +149,40 @@ jobs:
           docker push ${DBUS_DAEMON_IMAGE}:${DBUS_DAEMON_TAG}
           docker push ${NFS_GANESHA_IMAGE}:${NFS_GANESHA_TAG}
           docker push ${CONTAINED_GANESHA_TEST_IMAGE}:${CONTAINED_GANESHA_TEST_TAG}
+
+  publish-dockerhub:
+    name: Publish container images to DockerHub
+    if: github.ref == 'refs/heads/master'
+    needs:
+      - build
+      - test-docker-compose
+      - test-kubernetes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Retrieve artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: container-images
+      - name: Import container images
+        run: |
+          cat container-images/build.tar.gz | gzip -d | docker load
+      - name: Tag container images
+        run: |
+          source .env
+          docker tag ${LOCAL_RPCBIND_IMAGE}:${LOCAL_RPCBIND_TAG} docker.io/nicolast/contained-ganesha-rpcbind:latest
+          docker tag ${LOCAL_RPC_STATD_IMAGE}:${LOCAL_RPC_STATD_TAG} docker.io/nicolast/contained-ganesha-rpc.statd:latest
+          docker tag ${LOCAL_DBUS_DAEMON_IMAGE}:${LOCAL_DBUS_DAEMON_TAG} docker.io/nicolast/contained-ganesha-dbus-daemon:latest
+          docker tag ${LOCAL_NFS_GANESHA_IMAGE}:${LOCAL_NFS_GANESHA_TAG} docker.io/nicolast/contained-ganesha-nfs-ganesha:latest
+      - name: Login to container image registry
+        run: |
+          echo ${DOCKERHUB_TOKEN} | docker login -u nicolast --password-stdin
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push container images
+        run: |
+          docker push docker.io/nicolast/contained-ganesha-rpcbind:latest
+          docker push docker.io/nicolast/contained-ganesha-rpc.statd:latest
+          docker push docker.io/nicolast/contained-ganesha-dbus-daemon:latest
+          docker push docker.io/nicolast/contained-ganesha-nfs-ganesha:latest
