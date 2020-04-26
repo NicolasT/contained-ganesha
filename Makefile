@@ -65,7 +65,8 @@ container-rpcbind: CACHE_FROM= \
 container-rpcbind: \
 		Dockerfile \
 		images/rpcbind/entrypoint.sh \
-		images/rpcbind/healthcheck.sh
+		images/rpcbind/healthcheck.sh \
+		images/rpcbind/README.md
 	$(call docker-build,$(LOCAL_RPCBIND_IMAGE):$(LOCAL_RPCBIND_TAG))
 .PHONY: container-rpcbind
 
@@ -78,7 +79,8 @@ container-rpc.statd: CACHE_FROM= \
 container-rpc.statd: \
 		Dockerfile \
 		images/rpc.statd/entrypoint.sh \
-		images/rpc.statd/healthcheck.sh
+		images/rpc.statd/healthcheck.sh \
+		images/rpc.statd/README.md
 	$(call docker-build,$(LOCAL_RPC_STATD_IMAGE):$(LOCAL_RPC_STATD_TAG))
 .PHONY: container-rpc.statd
 
@@ -88,7 +90,8 @@ container-dbus-daemon: CACHE_FROM=--cache-from $(DBUS_DAEMON_IMAGE):$(DBUS_DAEMO
 container-dbus-daemon: \
 		Dockerfile \
 		images/dbus-daemon/entrypoint.sh \
-		images/dbus-daemon/healthcheck.sh
+		images/dbus-daemon/healthcheck.sh \
+		images/dbus-daemon/README.md
 	$(call docker-build,$(LOCAL_DBUS_DAEMON_IMAGE):$(LOCAL_DBUS_DAEMON_TAG))
 .PHONY: container-dbus-daemon
 
@@ -102,7 +105,8 @@ container-nfs-ganesha: \
 		Dockerfile \
 		images/nfs-ganesha/entrypoint.sh \
 		images/nfs-ganesha/ganesha.conf.sh \
-		images/nfs-ganesha/healthcheck.sh
+		images/nfs-ganesha/healthcheck.sh \
+		images/nfs-ganesha/README.md
 	$(call docker-build,$(LOCAL_NFS_GANESHA_IMAGE):$(LOCAL_NFS_GANESHA_TAG))
 .PHONY: container-nfs-ganesha
 

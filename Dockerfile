@@ -40,7 +40,7 @@ RUN dnf install -y \
 # {{{ The `rpcbind` images
 FROM intermediate-rpcbind as rpcbind
 
-COPY images/rpcbind/entrypoint.sh images/rpcbind/healthcheck.sh /
+COPY images/rpcbind/entrypoint.sh images/rpcbind/healthcheck.sh images/rpcbind/README.md /
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["-d", "-s"]
 HEALTHCHECK CMD ["/healthcheck.sh"]
@@ -68,7 +68,7 @@ LABEL org.opencontainers.image.documentation="https://github.com/NicolasT/contai
 # {{{ The `rpc.statd` image
 FROM intermediate-nfs-utils as rpc.statd
 
-COPY images/rpc.statd/entrypoint.sh images/rpc.statd/healthcheck.sh /
+COPY images/rpc.statd/entrypoint.sh images/rpc.statd/healthcheck.sh images/rpc.statd/README.md /
 ENTRYPOINT ["/entrypoint.sh"]
 HEALTHCHECK CMD ["/healthcheck.sh"]
 
@@ -112,7 +112,7 @@ RUN /usr/bin/sed -i 's/ systemd//g' /etc/nsswitch.conf && \
 	&& \
     dnf clean all
 
-COPY images/dbus-daemon/entrypoint.sh images/dbus-daemon/healthcheck.sh /
+COPY images/dbus-daemon/entrypoint.sh images/dbus-daemon/healthcheck.sh images/dbus-daemon/README.md /
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["--system"]
 HEALTHCHECK CMD ["/healthcheck.sh"]
@@ -159,7 +159,7 @@ RUN /usr/bin/sed -i 's/ systemd//g' /etc/nsswitch.conf && \
 
 COPY images/nfs-ganesha/ganesha.conf.sh /etc/ganesha/ganesha.conf.sh
 
-COPY images/nfs-ganesha/entrypoint.sh images/nfs-ganesha/healthcheck.sh /
+COPY images/nfs-ganesha/entrypoint.sh images/nfs-ganesha/healthcheck.sh images/nfs-ganesha/README.md /
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["-N", "NIV_INFO"]
 HEALTHCHECK CMD ["/healthcheck.sh"]
