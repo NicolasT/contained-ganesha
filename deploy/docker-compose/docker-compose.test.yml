@@ -26,10 +26,3 @@ services:
       - dbus-daemon
       - nfs-ganesha
     network_mode: "service:pod"
-    volumes:
-      - type: volume
-        source: dbus-daemon-run
-        target: /run/dbus
-        read_only: true
-        volume:
-          nocopy: true
