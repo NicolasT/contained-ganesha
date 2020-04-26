@@ -14,7 +14,7 @@ ENV GOOS=${GOOS:-linux}
 ENV GOARCH=${GOARCH:-amd64}
 RUN go test -v -c -o bin/contained-ganesha-test ./...
 
-FROM scratch
+FROM scratch as contained-ganesha-test
 COPY --from=build /go/src/contained-ganesha-test/bin/contained-ganesha-test /contained-ganesha-test
 
 ENTRYPOINT ["/contained-ganesha-test"]
