@@ -5,7 +5,7 @@ services:
     image: ${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG}
     command:
       - -test.v
-      - -host=127.0.0.1
+      - -host=pod
       - -portmapper-port=${PORTMAPPER_PORT}
       - -status-port=${STATUS_PORT}
       - -nlockmgr-port=${NLOCKMGR_PORT}
@@ -25,4 +25,5 @@ services:
       - rpc.statd
       - dbus-daemon
       - nfs-ganesha
-    network_mode: "service:pod"
+    networks:
+      - default
