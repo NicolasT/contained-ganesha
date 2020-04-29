@@ -40,6 +40,7 @@ spec:
             - name: MOUNTD_PORT
               value: "${MOUNTD_PORT}"
           securityContext:
+            allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:
               drop:
@@ -103,6 +104,7 @@ spec:
         - name: rpcbind
           image: ${RPCBIND_IMAGE}:${RPCBIND_TAG}
           securityContext:
+            allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:
               drop:
@@ -138,6 +140,7 @@ spec:
             - name: STATUS_PORT
               value: "${STATUS_PORT}"
           securityContext:
+            allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:
               drop:
@@ -173,6 +176,7 @@ spec:
         - name: dbus-daemon
           image: ${DBUS_DAEMON_IMAGE}:${DBUS_DAEMON_TAG}
           securityContext:
+            allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:
               drop:
