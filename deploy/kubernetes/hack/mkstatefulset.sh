@@ -85,6 +85,7 @@ spec:
             exec:
               command: ["/healthcheck.sh"]
             timeoutSeconds: 10
+          terminationMessagePolicy: FallbackToLogsOnError
           volumeMounts:
             - name: run
               mountPath: /run
@@ -126,6 +127,7 @@ spec:
             exec:
               command: ["/healthcheck.sh"]
             timeoutSeconds: 10
+          terminationMessagePolicy: FallbackToLogsOnError
           volumeMounts:
             - name: run
               mountPath: /run
@@ -161,6 +163,7 @@ spec:
             exec:
               command: ["/healthcheck.sh"]
             timeoutSeconds: 10
+          terminationMessagePolicy: FallbackToLogsOnError
           volumeMounts:
             - name: run
               mountPath: /run
@@ -182,6 +185,7 @@ spec:
             exec:
               command: ["/healthcheck.sh"]
             timeoutSeconds: 10
+          terminationMessagePolicy: FallbackToLogsOnError
           volumeMounts:
             - name: dbus-daemon-run
               mountPath: /run/dbus
