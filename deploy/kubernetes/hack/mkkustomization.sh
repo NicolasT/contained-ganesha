@@ -21,6 +21,9 @@ images:
   - name: ${NFS_GANESHA_IMAGE}
     newName: ${LOCAL_NFS_GANESHA_IMAGE}
     newTag: ${LOCAL_NFS_GANESHA_TAG}
+  - name: ${GANESHA_CONFIG_RELOAD_IMAGE}
+    newName: ${LOCAL_GANESHA_CONFIG_RELOAD_IMAGE}
+    newTag: ${LOCAL_GANESHA_CONFIG_RELOAD_TAG}
 
 patchesJson6902:
 - target:

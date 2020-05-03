@@ -12,3 +12,6 @@ services:
 
   nfs-ganesha:
     image: ${LOCAL_NFS_GANESHA_IMAGE}:${LOCAL_NFS_GANESHA_TAG}
+
+  ganesha-config-reload:
+    image: ${LOCAL_GANESHA_CONFIG_RELOAD_IMAGE}:${LOCAL_GANESHA_CONFIG_RELOAD_TAG}

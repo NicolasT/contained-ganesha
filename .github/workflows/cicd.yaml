@@ -9,8 +9,30 @@ on:
       - master
 
 jobs:
+  check-ganesha-config-reload:
+    name: Check ganesha-config-reload
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+      - name: Cache Go modules
+        uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('ganesha-config-reload/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Test
+        run: |
+          go test -v ./...
+        working-directory: ./ganesha-config-reload
+
   build:
     name: Build container images
+    needs:
+      - check-ganesha-config-reload
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,6 +53,7 @@ jobs:
           docker pull ${RPC_STATD_IMAGE}:${RPC_STATD_TAG} || true
           docker pull ${DBUS_DAEMON_IMAGE}:${DBUS_DAEMON_TAG} || true
           docker pull ${NFS_GANESHA_IMAGE}:${NFS_GANESHA_TAG} || true
+          docker pull ${GANESHA_CONFIG_RELOAD_IMAGE}:${GANESHA_CONFIG_RELOAD_TAG} || true
           docker pull ${CONTAINED_GANESHA_TEST_IMAGE}:${CONTAINED_GANESHA_TEST_TAG} || true
       - name: Build container images
         run: |
@@ -45,6 +68,7 @@ jobs:
               ${LOCAL_RPC_STATD_IMAGE}:${LOCAL_RPC_STATD_TAG} \
               ${LOCAL_DBUS_DAEMON_IMAGE}:${LOCAL_DBUS_DAEMON_TAG} \
               ${LOCAL_NFS_GANESHA_IMAGE}:${LOCAL_NFS_GANESHA_TAG} \
+              ${LOCAL_GANESHA_CONFIG_RELOAD_IMAGE}:${LOCAL_GANESHA_CONFIG_RELOAD_TAG} \
               ${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG} \
               | gzip > container-images/build.tar.gz
       - name: Archive artifacts
@@ -135,6 +159,7 @@ jobs:
           docker tag ${LOCAL_RPC_STATD_IMAGE}:${LOCAL_RPC_STATD_TAG} ${RPC_STATD_IMAGE}:${RPC_STATD_TAG}
           docker tag ${LOCAL_DBUS_DAEMON_IMAGE}:${LOCAL_DBUS_DAEMON_TAG} ${DBUS_DAEMON_IMAGE}:${DBUS_DAEMON_TAG}
           docker tag ${LOCAL_NFS_GANESHA_IMAGE}:${LOCAL_NFS_GANESHA_TAG} ${NFS_GANESHA_IMAGE}:${NFS_GANESHA_TAG}
+          docker tag ${LOCAL_GANESHA_CONFIG_RELOAD_IMAGE}:${LOCAL_GANESHA_CONFIG_RELOAD_TAG} ${GANESHA_CONFIG_RELOAD_IMAGE}:${GANESHA_CONFIG_RELOAD_TAG}
           docker tag ${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG} ${CONTAINED_GANESHA_TEST_IMAGE}:${CONTAINED_GANESHA_TEST_TAG}
       - name: Login to container image registry
         run: |
@@ -148,6 +173,7 @@ jobs:
           docker push ${RPC_STATD_IMAGE}:${RPC_STATD_TAG}
           docker push ${DBUS_DAEMON_IMAGE}:${DBUS_DAEMON_TAG}
           docker push ${NFS_GANESHA_IMAGE}:${NFS_GANESHA_TAG}
+          docker push ${GANESHA_CONFIG_RELOAD_IMAGE}:${GANESHA_CONFIG_RELOAD_TAG}
           docker push ${CONTAINED_GANESHA_TEST_IMAGE}:${CONTAINED_GANESHA_TEST_TAG}
 
   publish-dockerhub:
@@ -175,6 +201,7 @@ jobs:
           docker tag ${LOCAL_RPC_STATD_IMAGE}:${LOCAL_RPC_STATD_TAG} docker.io/nicolast/contained-ganesha-rpc.statd:latest
           docker tag ${LOCAL_DBUS_DAEMON_IMAGE}:${LOCAL_DBUS_DAEMON_TAG} docker.io/nicolast/contained-ganesha-dbus-daemon:latest
           docker tag ${LOCAL_NFS_GANESHA_IMAGE}:${LOCAL_NFS_GANESHA_TAG} docker.io/nicolast/contained-ganesha-nfs-ganesha:latest
+          docker tag ${LOCAL_GANESHA_CONFIG_RELOAD_IMAGE}:${LOCAL_GANESHA_CONFIG_RELOAD_TAG} docker.io/nicolast/contained-ganesha-ganesha-config-reload:latest
       - name: Login to container image registry
         run: |
           echo ${DOCKERHUB_TOKEN} | docker login -u nicolast --password-stdin
@@ -186,3 +213,4 @@ jobs:
           docker push docker.io/nicolast/contained-ganesha-rpc.statd:latest
           docker push docker.io/nicolast/contained-ganesha-dbus-daemon:latest
           docker push docker.io/nicolast/contained-ganesha-nfs-ganesha:latest
+          docker push docker.io/nicolast/contained-ganesha-ganesha-config-reload:latest
