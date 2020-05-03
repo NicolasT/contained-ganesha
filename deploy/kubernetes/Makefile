@@ -74,6 +74,7 @@ kind-load-docker-images-nobuild: $(ENV_FILE)
 		$${LOCAL_RPC_STATD_IMAGE}:$${LOCAL_RPC_STATD_TAG} \
 		$${LOCAL_DBUS_DAEMON_IMAGE}:$${LOCAL_DBUS_DAEMON_TAG} \
 		$${LOCAL_NFS_GANESHA_IMAGE}:$${LOCAL_NFS_GANESHA_TAG} \
+		$${LOCAL_GANESHA_CONFIG_RELOAD_IMAGE}:$${LOCAL_GANESHA_CONFIG_RELOAD_TAG} \
 		; do \
 		echo $(KIND) load docker-image $${image}; \
 		$(KIND) load docker-image $${image}; \

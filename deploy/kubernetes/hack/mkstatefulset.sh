@@ -26,6 +26,7 @@ spec:
         component: nfs-ganesha
     spec:
       automountServiceAccountToken: false
+      shareProcessNamespace: true
 
       containers:
         - name: nfs-ganesha
@@ -97,6 +98,27 @@ spec:
               mountPath: /var/lib/nfs/ganesha
             - name: nfs-ganesha-tmp
               mountPath: /tmp
+            - name: nfs-ganesha-config
+              mountPath: /etc/ganesha/ganesha.conf.d
+              readOnly: true
+
+        - name: ganesha-config-reload
+          image: ${GANESHA_CONFIG_RELOAD_IMAGE}:${GANESHA_CONFIG_RELOAD_TAG}
+          args:
+            - -mode=configmap
+            - -pid=/run/ganesha/ganesha.pid
+            - /etc/ganesha/ganesha.conf.d
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          terminationMessagePolicy: FallbackToLogsOnError
+          volumeMounts:
+            - name: run
+              mountPath: /run
+              readOnly: true
             - name: nfs-ganesha-config
               mountPath: /etc/ganesha/ganesha.conf.d
               readOnly: true

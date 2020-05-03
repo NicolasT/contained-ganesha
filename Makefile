@@ -11,6 +11,7 @@ include $(TOP_SRCDIR)/include.mk
 
 CONTAINERS = \
 	dbus-daemon \
+	ganesha-config-reload \
 	nfs-ganesha \
 	rpc.statd \
 	rpcbind
@@ -109,6 +110,18 @@ container-nfs-ganesha: \
 		images/nfs-ganesha/README.md
 	$(call docker-build,$(LOCAL_NFS_GANESHA_IMAGE):$(LOCAL_NFS_GANESHA_TAG))
 .PHONY: container-nfs-ganesha
+
+container-ganesha-config-reload: TARGET=ganesha-config-reload
+container-ganesha-config-reload: LABELS=$(call default-labels,$(GANESHA_CONFIG_RELOAD_IMAGE):$(GANESHA_CONFIG_RELOAD_TAG))
+container-ganesha-config-reload: CACHE_FROM= \
+					--cache-from $(GANESHA_CONFIG_RELOAD_IMAGE):$(GANESHA_CONFIG_RELOAD_TAG)
+container-ganesha-config-reload: \
+		ganesha-config-reload/Dockerfile \
+		ganesha-config-reload/go.mod \
+		ganesha-config-reload/go.sum \
+		ganesha-config-reload/main.go
+	$(call docker-build,$(LOCAL_GANESHA_CONFIG_RELOAD_IMAGE):$(LOCAL_GANESHA_CONFIG_RELOAD_TAG))
+.PHONY: container-ganesha-config-reload
 
 container-contained-ganesha-test: TARGET=contained-ganesha-test
 container-contained-ganesha-test: LABELS=$(call default-labels,$(CONTAINED_GANESHA_TEST_IMAGE):$(CONTAINED_GANESHA_TEST_TAG))

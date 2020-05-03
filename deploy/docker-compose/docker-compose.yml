@@ -135,10 +135,12 @@ services:
       app: contained-ganesha
       component: nfs-ganesha
     depends_on:
+      - pod
       - rpcbind
       - rpc.statd
       - dbus-daemon
     network_mode: "service:pod"
+    pid: "service:pod"
     volumes:
       - type: volume
         source: run
@@ -159,8 +161,37 @@ services:
       - type: tmpfs
         target: /tmp
       - type: bind
-        source: ./ganesha-exports.conf
-        target: /etc/ganesha/ganesha.conf.d/exports.conf
+        source: ./ganesha.conf.d/
+        target: /etc/ganesha/ganesha.conf.d/
+        read_only: true
+
+  ganesha-config-reload:
+    image: ${GANESHA_CONFIG_RELOAD_IMAGE}:${GANESHA_CONFIG_RELOAD_TAG}
+    command:
+      - -mode=file
+      - -pid=/run/ganesha/ganesha.pid
+      - /etc/ganesha/ganesha.conf.d
+    read_only: true
+    restart: on-failure
+    cap_drop:
+      - ALL
+    labels:
+      app: contained-ganesha
+      component: ganesha-config-reload
+    depends_on:
+      - pod
+      - nfs-ganesha
+    network_mode: "none"
+    pid: "service:pod"
+    volumes:
+      - type: volume
+        source: run
+        target: /run
+        volume:
+          nocopy: true
+      - type: bind
+        source: ./ganesha.conf.d/
+        target: /etc/ganesha/ganesha.conf.d/
         read_only: true
 
 volumes:

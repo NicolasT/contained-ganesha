@@ -10,3 +10,6 @@
 - op: add
   path: /spec/template/spec/containers/3/imagePullPolicy
   value: Never
+- op: add
+  path: /spec/template/spec/containers/4/imagePullPolicy
+  value: Never
