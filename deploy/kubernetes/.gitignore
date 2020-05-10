@@ -1,4 +1,4 @@
 base/service.yml
 base/service-headless.yml
 base/statefulset.yml
-local/kustomization.yml
+overlays/local/kustomization.yml
