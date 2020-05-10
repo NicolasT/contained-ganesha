@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nfs-ganesha-headless
+  labels:
+    app: contained-ganesha
+    component: nfs-ganesha
+spec:
+  selector:
+    app: contained-ganesha
+    component: nfs-ganesha
+  clusterIP: None
+  sessionAffinity: ClientIP
+  ports:
+    - name: portmapper-tcp
+      port: 111
+      protocol: TCP
+      targetPort: portmapper-tcp
+    - name: portmapper-udp
+      port: 111
+      protocol: UDP
+      targetPort: portmapper-udp
+    - name: status-tcp
+      port: 865
+      protocol: TCP
+      targetPort: status-tcp
+    - name: status-udp
+      port: 865
+      protocol: UDP
+      targetPort: status-udp
+    - name: nlockmgr-tcp
+      port: 866
+      protocol: TCP
+      targetPort: nlockmgr-tcp
+    - name: nlockmgr-udp
+      port: 866
+      protocol: UDP
+      targetPort: nlockmgr-udp
+    - name: rquotad-tcp
+      port: 875
+      protocol: TCP
+      targetPort: rquotad-tcp
+    - name: rquotad-udp
+      port: 875
+      protocol: UDP
+      targetPort: rquotad-udp
+    - name: nfs-tcp
+      port: 2049
+      protocol: TCP
+      targetPort: nfs-tcp
+    - name: nfs-udp
+      port: 2049
+      protocol: UDP
+      targetPort: nfs-udp
+    - name: mountd-tcp
+      port: 20048
+      protocol: TCP
+      targetPort: mountd-tcp
+    - name: mountd-udp
+      port: 20048
+      protocol: UDP
+      targetPort: mountd-udp
