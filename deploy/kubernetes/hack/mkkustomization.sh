@@ -6,7 +6,7 @@ source $1
 
 cat << EOF
 bases:
-  - ../base
+  - ../../base
 
 images:
   - name: ${RPCBIND_IMAGE}

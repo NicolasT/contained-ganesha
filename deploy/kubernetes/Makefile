@@ -12,7 +12,7 @@ MANIFESTS = \
 	base/service.yml \
 	base/service-headless.yml \
 	base/statefulset.yml \
-	local/kustomization.yml
+	overlays/local/kustomization.yml
 
 manifests: $(MANIFESTS) ## Render all manifest files
 .PHONY: all
@@ -26,7 +26,7 @@ base/service-headless.yml: $(ENV_FILE) hack/mkservice.sh
 base/statefulset.yml: $(ENV_FILE) hack/mkstatefulset.sh
 	hack/mkstatefulset.sh $< > $@ || (rm -f $@; false)
 
-local/kustomization.yml: $(ENV_FILE) hack/mkkustomization.sh
+overlays/local/kustomization.yml: $(ENV_FILE) hack/mkkustomization.sh
 	hack/mkkustomization.sh $< > $@ || (rm -f $@; false)
 
 clean: ## Remove all generated files
@@ -34,11 +34,11 @@ clean: ## Remove all generated files
 .PHONY: clean
 
 kubectl-local-apply: ## Run 'kubectl apply' using the 'local' overlay
-	$(KUBECTL) apply -k ./local/
+	$(KUBECTL) apply -k ./overlays/local/
 .PHONY: kubectl-local-apply
 
 kubectl-local-delete: ## Run 'kubectl delete' using the 'local' overlay
-	$(KUBECTL) delete -k ./local/
+	$(KUBECTL) delete -k ./overlays/local/
 .PHONY: kubectl-local-delete
 
 check: kubectl-local-apply ## Run a test-suite
