@@ -1,0 +1,232 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nfs-ganesha
+  labels:
+    app: contained-ganesha
+    component: nfs-ganesha
+spec:
+  selector:
+    matchLabels:
+      app: contained-ganesha
+      component: nfs-ganesha
+  serviceName: nfs-ganesha-headless
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: contained-ganesha
+        component: nfs-ganesha
+    spec:
+      automountServiceAccountToken: false
+      shareProcessNamespace: true
+
+      containers:
+        - name: nfs-ganesha
+          image: docker.pkg.github.com/nicolast/contained-ganesha/nfs-ganesha:latest
+          env:
+            - name: NLOCKMGR_PORT
+              value: "866"
+            - name: RQUOTAD_PORT
+              value: "875"
+            - name: NFS_PORT
+              value: "2049"
+            - name: MOUNTD_PORT
+              value: "20048"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - CHOWN
+                - DAC_OVERRIDE
+                - DAC_READ_SEARCH
+                - FOWNER
+                - FSETID
+                - NET_BIND_SERVICE
+                - SETGID
+                - SETUID
+          ports:
+            - name: nlockmgr-tcp
+              containerPort: 866
+              protocol: TCP
+            - name: nlockmgr-udp
+              containerPort: 866
+              protocol: UDP
+            - name: rquotad-tcp
+              containerPort: 875
+              protocol: TCP
+            - name: rquotad-udp
+              containerPort: 875
+              protocol: UDP
+            - name: nfs-tcp
+              containerPort: 2049
+              protocol: TCP
+            - name: nfs-udp
+              containerPort: 2049
+              protocol: UDP
+            - name: mountd-tcp
+              containerPort: 20048
+              protocol: TCP
+            - name: mountd-udp
+              containerPort: 20048
+              protocol: UDP
+          livenessProbe:
+            tcpSocket:
+              port: nfs-tcp
+          readinessProbe:
+            exec:
+              command: ["/healthcheck.sh"]
+            timeoutSeconds: 10
+          terminationMessagePolicy: FallbackToLogsOnError
+          volumeMounts:
+            - name: run
+              mountPath: /run
+            - name: dbus-daemon-run
+              mountPath: /run/dbus
+              readOnly: true
+            - name: nfs-ganesha-lib
+              mountPath: /var/lib/nfs/ganesha
+            - name: nfs-ganesha-tmp
+              mountPath: /tmp
+            - name: nfs-ganesha-config
+              mountPath: /etc/ganesha/ganesha.conf.d
+              readOnly: true
+
+        - name: ganesha-config-reload
+          image: docker.pkg.github.com/nicolast/contained-ganesha/ganesha-config-reload:latest
+          args:
+            - -mode=configmap
+            - -pid=/run/ganesha/ganesha.pid
+            - /etc/ganesha/ganesha.conf.d
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          terminationMessagePolicy: FallbackToLogsOnError
+          volumeMounts:
+            - name: run
+              mountPath: /run
+              readOnly: true
+            - name: nfs-ganesha-config
+              mountPath: /etc/ganesha/ganesha.conf.d
+              readOnly: true
+
+        - name: rpcbind
+          image: docker.pkg.github.com/nicolast/contained-ganesha/rpcbind:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - DAC_OVERRIDE
+                - CHOWN
+                - NET_BIND_SERVICE
+                - SETGID
+                - SETUID
+          ports:
+            - name: portmapper-tcp
+              containerPort: 111
+              protocol: TCP
+            - name: portmapper-udp
+              containerPort: 111
+              protocol: UDP
+          livenessProbe:
+            tcpSocket:
+              port: portmapper-tcp
+          readinessProbe:
+            exec:
+              command: ["/healthcheck.sh"]
+            timeoutSeconds: 10
+          terminationMessagePolicy: FallbackToLogsOnError
+          volumeMounts:
+            - name: run
+              mountPath: /run
+
+        - name: rpc-statd
+          image: docker.pkg.github.com/nicolast/contained-ganesha/rpc.statd:latest
+          env:
+            - name: STATUS_PORT
+              value: "865"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - DAC_OVERRIDE
+                - CHOWN
+                - NET_BIND_SERVICE
+                - SETGID
+                - SETPCAP
+                - SETUID
+          ports:
+            - name: status-tcp
+              containerPort: 865
+              protocol: TCP
+            - name: status-udp
+              containerPort: 865
+              protocol: UDP
+          livenessProbe:
+            tcpSocket:
+              port: status-tcp
+          readinessProbe:
+            exec:
+              command: ["/healthcheck.sh"]
+            timeoutSeconds: 10
+          terminationMessagePolicy: FallbackToLogsOnError
+          volumeMounts:
+            - name: run
+              mountPath: /run
+            - name: rpc-statd-lib
+              mountPath: /var/lib/nfs
+
+        - name: dbus-daemon
+          image: docker.pkg.github.com/nicolast/contained-ganesha/dbus-daemon:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - SETGID
+                - SETPCAP
+                - SETUID
+          livenessProbe:
+            exec:
+              command: ["/healthcheck.sh"]
+            timeoutSeconds: 10
+          terminationMessagePolicy: FallbackToLogsOnError
+          volumeMounts:
+            - name: dbus-daemon-run
+              mountPath: /run/dbus
+            - name: dbus-daemon-lib
+              mountPath: /var/lib/dbus
+
+      volumes:
+        - name: nfs-ganesha-lib
+          emptyDir:
+        - name: nfs-ganesha-tmp
+          emptyDir:
+            medium: Memory
+        - name: nfs-ganesha-config
+          configMap:
+            name: nfs-ganesha
+        - name: run
+          emptyDir:
+            medium: Memory
+        - name: rpc-statd-lib
+          emptyDir:
+        - name: dbus-daemon-run
+          emptyDir:
+            medium: Memory
+        - name: dbus-daemon-lib
+          emptyDir:

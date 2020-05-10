@@ -1,0 +1,27 @@
+bases:
+  - ../base
+
+images:
+  - name: docker.pkg.github.com/nicolast/contained-ganesha/rpcbind
+    newName: contained-ganesha/rpcbind
+    newTag: latest
+  - name: docker.pkg.github.com/nicolast/contained-ganesha/rpc.statd
+    newName: contained-ganesha/rpc.statd
+    newTag: latest
+  - name: docker.pkg.github.com/nicolast/contained-ganesha/dbus-daemon
+    newName: contained-ganesha/dbus-daemon
+    newTag: latest
+  - name: docker.pkg.github.com/nicolast/contained-ganesha/nfs-ganesha
+    newName: contained-ganesha/nfs-ganesha
+    newTag: latest
+  - name: docker.pkg.github.com/nicolast/contained-ganesha/ganesha-config-reload
+    newName: contained-ganesha/ganesha-config-reload
+    newTag: latest
+
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: StatefulSet
+    name: nfs-ganesha
+  path: image-pull-policy-patch.yml
