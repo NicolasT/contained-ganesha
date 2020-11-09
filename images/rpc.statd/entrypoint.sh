@@ -24,12 +24,13 @@ TIMEOUT=10
 for i in `seq 1 $TIMEOUT`; do
     echo "Waiting for rpcbind to be up ($i/$TIMEOUT)..."
     set +e
-    /usr/bin/rpcinfo -T tcp 127.0.0.1 100000 4
+    ( ulimit -n 1024 && exec /usr/bin/rpcinfo -T tcp 127.0.0.1 100000 4 )
     result=$?
     set -e
 
     if [ $result -eq 0 ]; then
         echo "rpcbind listening, starting rpc.statd"
+        ulimit -n 1024
         exec /usr/sbin/rpc.statd --no-syslog --foreground --state-directory-path ${STATD_LIBDIR} ${PORT_ARG} "$@"
     fi
 
