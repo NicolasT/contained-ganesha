@@ -23,7 +23,7 @@ DBUS_DAEMON_UP=0
 for i in `seq 1 $TIMEOUT`; do
     echo "Waiting for rpcbind to be up ($i/$TIMEOUT)..."
     set +e
-    /usr/sbin/rpcinfo -T tcp 127.0.0.1 100000 4
+    ( ulimit -n 1024 && exec /usr/sbin/rpcinfo -T tcp 127.0.0.1 100000 4 )
     result=$?
     set -e
 
@@ -44,7 +44,7 @@ fi
 for i in `seq 1 $TIMEOUT`; do
     echo "Waiting for rpc.statd to be up ($i/$TIMEOUT)..."
     set +e
-    /usr/sbin/rpcinfo -T tcp 127.0.0.1 100024 1
+    ( ulimit -n 1024 && exec /usr/sbin/rpcinfo -T tcp 127.0.0.1 100024 1 )
     result=$?
     set -e
 

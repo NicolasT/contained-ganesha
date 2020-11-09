@@ -7,6 +7,8 @@ HOST=127.0.0.1
 PROGRAM=100003
 VERSION=4
 
+ulimit -n 1024
+
 exec /usr/bin/timeout \
         --kill-after=1s \
         8s \
