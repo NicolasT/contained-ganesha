@@ -21,7 +21,7 @@ NFS3):
 - An NLM status daemon (`rpc.statd`)
 - In case of NFS-Ganesha, `dbus-daemon` for configuration
 - The NFS server, which in case of NFS-Ganesha includes `mountd`, `nlockmgr`
-  and `ruotad`
+  and `rquotad`
 
 Some projects provide a Docker container image which includes and starts all
 these services in a single container. This goes against the principes of
