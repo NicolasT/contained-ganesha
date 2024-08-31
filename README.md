@@ -17,7 +17,7 @@ Rationale
 An NFS server requires several services to be running (at least to support
 NFS3):
 
-- A *portmapper* daemon (`rpcbin`)
+- A *portmapper* daemon (`rpcbind`)
 - An NLM status daemon (`rpc.statd`)
 - In case of NFS-Ganesha, `dbus-daemon` for configuration
 - The NFS server, which in case of NFS-Ganesha includes `mountd`, `nlockmgr`
