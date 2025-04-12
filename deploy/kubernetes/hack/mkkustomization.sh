@@ -5,7 +5,10 @@ set -ue -o pipefail
 source $1
 
 cat << EOF
-bases:
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
   - ../../base
 
 images:
@@ -25,11 +28,11 @@ images:
     newName: ${LOCAL_GANESHA_CONFIG_RELOAD_IMAGE}
     newTag: ${LOCAL_GANESHA_CONFIG_RELOAD_TAG}
 
-patchesJson6902:
-- target:
+patches:
+- path: image-pull-policy-patch.yml
+  target:
     group: apps
     version: v1
     kind: StatefulSet
     name: nfs-ganesha
-  path: image-pull-policy-patch.yml
 EOF
