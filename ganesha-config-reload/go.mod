@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/fsnotify/fsnotify v1.9.0
-	github.com/go-logr/logr v0.1.0
+	github.com/go-logr/logr v1.4.2
 	github.com/go-logr/stdr v0.0.0-20190808155957-db4f46c40425
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.10.1
