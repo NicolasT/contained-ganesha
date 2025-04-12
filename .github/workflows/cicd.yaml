@@ -14,16 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.2.2
       - name: Install Go
-        uses: actions/setup-go@v2
-      - name: Cache Go modules
-        uses: actions/cache@v1
+        uses: actions/setup-go@v5.4.0
         with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('ganesha-config-reload/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+          cache-dependency-path: |
+            ganesha-config-reload/go.sum
       - name: Test
         run: |
           go test -v ./...
@@ -36,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.2.2
       - name: Fetch tags
         run: |
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
@@ -72,10 +68,11 @@ jobs:
               ${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG} \
               | gzip > container-images/build.tar.gz
       - name: Archive artifacts
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: container-images
           path: container-images
+          if-no-files-found: error
 
   test-docker-compose:
     name: Test docker-compose
@@ -84,11 +81,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.2.2
       - name: Retrieve artifacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.2.1
         with:
           name: container-images
+          path: container-images/
       - name: Import container images
         run: |
           cat container-images/build.tar.gz | gzip -d | docker load
@@ -106,11 +104,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.2.2
       - name: Retrieve artifacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.2.1
         with:
           name: container-images
+          path: container-images/
       - name: Build manifests
         run: |
           make -C deploy/kubernetes manifests
@@ -118,7 +117,7 @@ jobs:
         run: |
           cat container-images/build.tar.gz | gzip -d | docker load
       - name: Start Kind cluster
-        uses: helm/kind-action@v1.0.0-rc.1
+        uses: helm/kind-action@v1.12.0
         with:
           cluster_name: kind
       - name: Import Docker images into Kind cluster
@@ -144,11 +143,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.2.2
       - name: Retrieve artifacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.2.1
         with:
           name: container-images
+          path: container-images/
       - name: Import container images
         run: |
           cat container-images/build.tar.gz | gzip -d | docker load
@@ -186,11 +186,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.2.2
       - name: Retrieve artifacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.2.1
         with:
           name: container-images
+          path: container-images/
       - name: Import container images
         run: |
           cat container-images/build.tar.gz | gzip -d | docker load
