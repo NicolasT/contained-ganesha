@@ -67,7 +67,7 @@ var _ = Describe("Watcher", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			By("Creating a first version of the ConfigMap")
-			Expect(aw.Write(payload1)).To(Succeed())
+			Expect(aw.Write(payload1, nil)).To(Succeed())
 
 			By("Constructing a watcher")
 			w, err := NewWatcher(logger, ConfigMapChecker, []string{configPath})
@@ -89,7 +89,7 @@ var _ = Describe("Watcher", func() {
 			}()
 
 			By("Replacing the ConfigMap content")
-			Expect(aw.Write(payload2)).To(Succeed())
+			Expect(aw.Write(payload2, nil)).To(Succeed())
 
 			By("Waiting for an event to trigger")
 			Eventually(w.Events).Should(Receive())
