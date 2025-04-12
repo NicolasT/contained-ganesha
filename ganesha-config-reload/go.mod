@@ -3,7 +3,7 @@ module github.com/NicolasT/contained-ganesha/ganesha-config-reload
 go 1.14
 
 require (
-	github.com/fsnotify/fsnotify v1.4.9
+	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-logr/logr v0.1.0
 	github.com/go-logr/stdr v0.0.0-20190808155957-db4f46c40425
 	github.com/onsi/ginkgo v1.11.0
