@@ -1,4 +1,4 @@
-DOCKER_COMPOSE ?= docker-compose
+DOCKER_COMPOSE ?= docker compose
 
 DOCKER_COMPOSE_YML = docker-compose.yml
 DOCKER_COMPOSE_LOCAL_YML = docker-compose.local.yml
