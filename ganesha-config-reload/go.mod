@@ -1,6 +1,6 @@
 module github.com/NicolasT/contained-ganesha/ganesha-config-reload
 
-go 1.14
+go 1.22
 
 require (
 	github.com/fsnotify/fsnotify v1.9.0
@@ -9,6 +9,6 @@ require (
 	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.8.1
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
-	k8s.io/kubernetes v1.18.2
+	k8s.io/kubernetes v1.28.14
 	sigs.k8s.io/controller-runtime v0.6.0
 )
