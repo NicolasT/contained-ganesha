@@ -1,6 +1,6 @@
 # {{{ Common base image
-ARG BASE_IMAGE=docker.io/centos
-ARG BASE_IMAGE_TAG=8
+ARG BASE_IMAGE=docker.io/almalinux
+ARG BASE_IMAGE_TAG=9.5-20250307
 FROM ${BASE_IMAGE}:${BASE_IMAGE_TAG} as base
 # Common labels across all images
 LABEL org.opencontainers.image.authors="Nicolas Trangez <https://nicolast.be>" \
@@ -103,7 +103,7 @@ VOLUME ["/run", "/var/lib/dbus"]
 RUN /usr/bin/sed -i 's/ systemd//g' /etc/nsswitch.conf && \
     \
     dnf install -y \
-        centos-release-nfs-ganesha30 \
+        centos-release-nfs-ganesha5 \
 	&& \
     dnf install -y \
         dbus-daemon \
@@ -140,7 +140,7 @@ FROM intermediate-nfs-utils as nfs-ganesha
 RUN /usr/bin/sed -i 's/ systemd//g' /etc/nsswitch.conf && \
     \
     dnf install -y \
-        centos-release-nfs-ganesha30 \
+        centos-release-nfs-ganesha5 \
         && \
     dnf install -y \
         nfs-ganesha \
