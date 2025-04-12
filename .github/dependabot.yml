@@ -1,0 +1,31 @@
+---
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: daily
+  - package-ecosystem: docker
+    directory: "/"
+    schedule:
+      interval: daily
+  - package-ecosystem: docker
+    directory: "test/"
+    schedule:
+      interval: daily
+  - package-ecosystem: gomod
+    directory: "test/"
+    schedule:
+      interval: daily
+    allow:
+      - dependency-type: "all"
+  - package-ecosystem: docker
+    directory: "ganesha-config-reload/"
+    schedule:
+      interval: daily
+  - package-ecosystem: gomod
+    directory: "ganesha-config-reload/"
+    schedule:
+      interval: daily
+    allow:
+      - dependency-type: "all"
