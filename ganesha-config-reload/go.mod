@@ -10,7 +10,7 @@ require (
 	github.com/onsi/gomega v1.37.0
 	golang.org/x/sync v0.13.0
 	k8s.io/kubernetes v1.32.3
-	sigs.k8s.io/controller-runtime v0.19.7
+	sigs.k8s.io/controller-runtime v0.20.4
 )
 
 require (
