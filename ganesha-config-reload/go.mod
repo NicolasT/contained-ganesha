@@ -70,7 +70,7 @@ require (
 	k8s.io/api v0.32.3 // indirect
 	k8s.io/apiextensions-apiserver v0.32.0 // indirect
 	k8s.io/apimachinery v0.32.3 // indirect
-	k8s.io/apiserver v0.32.0 // indirect
+	k8s.io/apiserver v0.32.3 // indirect
 	k8s.io/client-go v0.32.3 // indirect
 	k8s.io/cloud-provider v0.32.0 // indirect
 	k8s.io/component-base v0.32.3 // indirect
