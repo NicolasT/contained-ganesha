@@ -1,4 +1,4 @@
-version: '3.3'
+name: 'contained-ganesha'
 
 services:
   pod:
@@ -28,6 +28,7 @@ services:
 
   rpcbind:
     image: ${RPCBIND_IMAGE}:${RPCBIND_TAG}
+    init: true
     read_only: true
     restart: on-failure
     cap_drop:
@@ -51,6 +52,7 @@ services:
 
   rpc.statd:
     image: ${RPC_STATD_IMAGE}:${RPC_STATD_TAG}
+    init: true
     environment:
       STATUS_PORT:
     read_only: true
@@ -84,6 +86,7 @@ services:
 
   dbus-daemon:
     image: ${DBUS_DAEMON_IMAGE}:${DBUS_DAEMON_TAG}
+    init: true
     read_only: true
     restart: on-failure
     cap_drop:
