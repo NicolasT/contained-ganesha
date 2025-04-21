@@ -1,5 +1,3 @@
-version: '3.3'
-
 services:
   sut:
     image: ${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG}
