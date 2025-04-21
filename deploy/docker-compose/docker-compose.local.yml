@@ -1,5 +1,3 @@
-version: '3.3'
-
 services:
   rpcbind:
     image: ${LOCAL_RPCBIND_IMAGE}:${LOCAL_RPCBIND_TAG}
