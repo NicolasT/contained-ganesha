@@ -76,7 +76,7 @@ require (
 	k8s.io/component-base v0.32.4 // indirect
 	k8s.io/component-helpers v0.32.4 // indirect
 	k8s.io/controller-manager v0.32.4 // indirect
-	k8s.io/csi-translation-lib v0.32.3 // indirect
+	k8s.io/csi-translation-lib v0.32.4 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20250318190949-c8a335a9a2ff // indirect
 	k8s.io/kubelet v0.32.4 // indirect
