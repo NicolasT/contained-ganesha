@@ -29,7 +29,6 @@ require (
 	github.com/google/gnostic-models v0.6.9 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
@@ -46,7 +45,6 @@ require (
 	github.com/prometheus/common v0.63.0 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
-	github.com/spf13/cobra v1.9.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.opentelemetry.io/otel v1.35.0 // indirect
@@ -69,9 +67,9 @@ require (
 	k8s.io/api v0.33.0 // indirect
 	k8s.io/apiextensions-apiserver v0.32.4 // indirect
 	k8s.io/apimachinery v0.33.0 // indirect
-	k8s.io/apiserver v0.32.4 // indirect
+	k8s.io/apiserver v0.33.0 // indirect
 	k8s.io/client-go v0.33.0 // indirect
-	k8s.io/component-base v0.32.4 // indirect
+	k8s.io/component-base v0.33.0 // indirect
 	k8s.io/component-helpers v0.33.0 // indirect
 	k8s.io/controller-manager v0.32.4 // indirect
 	k8s.io/csi-translation-lib v0.32.4 // indirect
