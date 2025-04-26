@@ -83,7 +83,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
       - name: Retrieve artifacts
-        uses: actions/download-artifact@v4.2.1
+        uses: actions/download-artifact@v4.3.0
         with:
           name: container-images
           path: container-images/
@@ -106,7 +106,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
       - name: Retrieve artifacts
-        uses: actions/download-artifact@v4.2.1
+        uses: actions/download-artifact@v4.3.0
         with:
           name: container-images
           path: container-images/
@@ -145,7 +145,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
       - name: Retrieve artifacts
-        uses: actions/download-artifact@v4.2.1
+        uses: actions/download-artifact@v4.3.0
         with:
           name: container-images
           path: container-images/
@@ -188,7 +188,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
       - name: Retrieve artifacts
-        uses: actions/download-artifact@v4.2.1
+        uses: actions/download-artifact@v4.3.0
         with:
           name: container-images
           path: container-images/
