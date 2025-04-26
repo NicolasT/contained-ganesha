@@ -60,9 +60,9 @@ default-labels = \
 container-rpcbind: TARGET=rpcbind
 container-rpcbind: LABELS=$(call default-labels,$(RPCBIND_IMAGE):$(RPCBIND_TAG))
 container-rpcbind: CACHE_FROM= \
-			--cache-from $(RPCBIND_IMAGE):$(RPCBIND_TAG) \
-			--cache-from $(RPC_STATD_IMAGE):$(RPC_STATD_TAG) \
-			--cache-from $(NFS_GANESHA_IMAGE):$(NFS_GANESHA_TAG)
+			--cache-from $(RPCBIND_IMAGE) \
+			--cache-from $(RPC_STATD_IMAGE) \
+			--cache-from $(NFS_GANESHA_IMAGE)
 container-rpcbind: \
 		Dockerfile \
 		images/rpcbind/entrypoint.sh \
@@ -74,9 +74,9 @@ container-rpcbind: \
 container-rpc.statd: TARGET=rpc.statd
 container-rpc.statd: LABELS=$(call default-labels,$(RPC_STATD_IMAGE):$(RPC_STATD_TAG))
 container-rpc.statd: CACHE_FROM= \
-			--cache-from $(RPCBIND_IMAGE):$(RPCBIND_TAG) \
-			--cache-from $(RPC_STATD_IMAGE):$(RPC_STATD_TAG) \
-			--cache-from $(NFS_GANESHA_IMAGE):$(NFS_GANESHA_TAG)
+			--cache-from $(RPCBIND_IMAGE) \
+			--cache-from $(RPC_STATD_IMAGE) \
+			--cache-from $(NFS_GANESHA_IMAGE)
 container-rpc.statd: \
 		Dockerfile \
 		images/rpc.statd/entrypoint.sh \
@@ -87,7 +87,7 @@ container-rpc.statd: \
 
 container-dbus-daemon: TARGET=dbus-daemon
 container-dbus-daemon: LABELS=$(call default-labels,$(DBUS_DAEMON_IMAGE):$(DBUS_DAEMON_TAG))
-container-dbus-daemon: CACHE_FROM=--cache-from $(DBUS_DAEMON_IMAGE):$(DBUS_DAEMON_TAG)
+container-dbus-daemon: CACHE_FROM=--cache-from $(DBUS_DAEMON_IMAGE)
 container-dbus-daemon: \
 		Dockerfile \
 		images/dbus-daemon/entrypoint.sh \
@@ -99,9 +99,9 @@ container-dbus-daemon: \
 container-nfs-ganesha: TARGET=nfs-ganesha
 container-nfs-ganesha: LABELS=$(call default-labels,$(NFS_GANESHA_IMAGE):$(NFS_GANESHA_TAG))
 container-nfs-ganesha: CACHE_FROM= \
-				--cache-from $(RPCBIND_IMAGE):$(RPCBIND_TAG) \
-				--cache-from $(RPC_STATD_IMAGE):$(RPC_STATD_TAG) \
-				--cache-from $(NFS_GANESHA_IMAGE):$(NFS_GANESHA_TAG)
+				--cache-from $(RPCBIND_IMAGE) \
+				--cache-from $(RPC_STATD_IMAGE) \
+				--cache-from $(NFS_GANESHA_IMAGE)
 container-nfs-ganesha: \
 		Dockerfile \
 		images/nfs-ganesha/entrypoint.sh \
@@ -114,7 +114,7 @@ container-nfs-ganesha: \
 container-ganesha-config-reload: TARGET=ganesha-config-reload
 container-ganesha-config-reload: LABELS=$(call default-labels,$(GANESHA_CONFIG_RELOAD_IMAGE):$(GANESHA_CONFIG_RELOAD_TAG))
 container-ganesha-config-reload: CACHE_FROM= \
-					--cache-from $(GANESHA_CONFIG_RELOAD_IMAGE):$(GANESHA_CONFIG_RELOAD_TAG)
+					--cache-from $(GANESHA_CONFIG_RELOAD_IMAGE)
 container-ganesha-config-reload: \
 		ganesha-config-reload/Dockerfile \
 		ganesha-config-reload/go.mod \
@@ -125,7 +125,7 @@ container-ganesha-config-reload: \
 
 container-contained-ganesha-test: TARGET=contained-ganesha-test
 container-contained-ganesha-test: LABELS=$(call default-labels,$(CONTAINED_GANESHA_TEST_IMAGE):$(CONTAINED_GANESHA_TEST_TAG))
-container-contained-ganesha-test: CACHE_FROM=--cache-from $(CONTAINED_GANESHA_TEST_IMAGE):$(CONTAINED_GANESHA_TEST_TAG)
+container-contained-ganesha-test: CACHE_FROM=--cache-from $(CONTAINED_GANESHA_TEST_IMAGE)
 container-contained-ganesha-test: test/Dockerfile
 	$(call docker-build,$(LOCAL_CONTAINED_GANESHA_TEST_IMAGE):$(LOCAL_CONTAINED_GANESHA_TEST_TAG))
 .PHONY: container-contained-ganesha-test
