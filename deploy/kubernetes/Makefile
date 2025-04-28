@@ -15,7 +15,7 @@ MANIFESTS = \
 	overlays/local/kustomization.yml
 
 manifests: $(MANIFESTS) ## Render all manifest files
-.PHONY: all
+.PHONY: manifests
 
 base/service.yml: $(ENV_FILE) hack/mkservice.sh
 	hack/mkservice.sh $< "nfs-ganesha" "" > $@ || (rm -f $@; false)
