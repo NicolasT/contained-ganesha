@@ -133,13 +133,24 @@ jobs:
         run: |
           make -C deploy/kubernetes kubectl-local-delete
 
+  tests-success:
+    runs-on: ubuntu-latest
+    if: ${{ always () }}
+    needs:
+      - test-docker-compose
+      - test-kubernetes
+    steps:
+      - name: Ensure tests succeeded
+        if: "${{ (needs.test-docker-compose.result != 'success') || (needs.test-kubernetes.result != 'success') }}"
+        run: |
+          exit 1
+
   publish-github:
     name: Publish container images to GitHub Packages
     if: github.ref == 'refs/heads/master'
     needs:
       - build
-      - test-docker-compose
-      - test-kubernetes
+      - tests-success
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -181,8 +192,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
     needs:
       - build
-      - test-docker-compose
-      - test-kubernetes
+      - tests-success
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
