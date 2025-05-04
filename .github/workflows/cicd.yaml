@@ -29,6 +29,9 @@ jobs:
     name: Build container images
     needs:
       - check-ganesha-config-reload
+    strategy:
+      matrix:
+        docker: [docker, podman]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -39,27 +42,37 @@ jobs:
           git fetch --prune --unshallow origin HEAD
       - name: Login to container image registry
         run: |
-          echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
+          echo ${GITHUB_TOKEN} | ${DOCKER} login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCKER: ${{ matrix.docker }}
       - name: Pull container images from registry
         run: |
           source .env
-          docker pull ${RPCBIND_IMAGE}:${RPCBIND_TAG} || true
-          docker pull ${RPC_STATD_IMAGE}:${RPC_STATD_TAG} || true
-          docker pull ${DBUS_DAEMON_IMAGE}:${DBUS_DAEMON_TAG} || true
-          docker pull ${NFS_GANESHA_IMAGE}:${NFS_GANESHA_TAG} || true
-          docker pull ${GANESHA_CONFIG_RELOAD_IMAGE}:${GANESHA_CONFIG_RELOAD_TAG} || true
-          docker pull ${CONTAINED_GANESHA_TEST_IMAGE}:${CONTAINED_GANESHA_TEST_TAG} || true
+          ${DOCKER} pull ${RPCBIND_IMAGE}:${RPCBIND_TAG} || true
+          ${DOCKER} pull ${RPC_STATD_IMAGE}:${RPC_STATD_TAG} || true
+          ${DOCKER} pull ${DBUS_DAEMON_IMAGE}:${DBUS_DAEMON_TAG} || true
+          ${DOCKER} pull ${NFS_GANESHA_IMAGE}:${NFS_GANESHA_TAG} || true
+          ${DOCKER} pull ${GANESHA_CONFIG_RELOAD_IMAGE}:${GANESHA_CONFIG_RELOAD_TAG} || true
+          ${DOCKER} pull ${CONTAINED_GANESHA_TEST_IMAGE}:${CONTAINED_GANESHA_TEST_TAG} || true
+        env:
+          DOCKER: ${{ matrix.docker }}
       - name: Build container images
         run: |
-          make containers container-contained-ganesha-test
+          make containers container-contained-ganesha-test DOCKER=${DOCKER}
+        env:
+          DOCKER: ${{ matrix.docker }}
       - name: Export container images
         run: |
           mkdir container-images
           source .env
 
-          docker save \
+          if [ ${DOCKER} = "podman" ]; then
+              EXTRA_ARGS="--multi-image-archive"
+          fi
+
+          ${DOCKER} save \
+              ${EXTRA_ARGS:-} \
               ${LOCAL_RPCBIND_IMAGE}:${LOCAL_RPCBIND_TAG} \
               ${LOCAL_RPC_STATD_IMAGE}:${LOCAL_RPC_STATD_TAG} \
               ${LOCAL_DBUS_DAEMON_IMAGE}:${LOCAL_DBUS_DAEMON_TAG} \
@@ -67,10 +80,12 @@ jobs:
               ${LOCAL_GANESHA_CONFIG_RELOAD_IMAGE}:${LOCAL_GANESHA_CONFIG_RELOAD_TAG} \
               ${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG} \
               | gzip > container-images/build.tar.gz
+        env:
+          DOCKER: ${{ matrix.docker }}
       - name: Archive artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: container-images
+          name: container-images-${{ matrix.docker }}
           path: container-images
           if-no-files-found: error
 
@@ -78,6 +93,9 @@ jobs:
     name: Test docker-compose
     needs:
       - build
+    strategy:
+      matrix:
+        docker: [docker, podman]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -85,11 +103,22 @@ jobs:
       - name: Retrieve artifacts
         uses: actions/download-artifact@v4.3.0
         with:
-          name: container-images
+          name: container-images-${{ matrix.docker }}
           path: container-images/
       - name: Import container images
         run: |
           cat container-images/build.tar.gz | gzip -d | docker load
+      - name: Re-tag container images
+        if: ${{ matrix.docker == 'podman' }}
+        run: |
+          source .env
+
+          docker tag localhost/${LOCAL_RPCBIND_IMAGE}:${LOCAL_RPCBIND_TAG} ${LOCAL_RPCBIND_IMAGE}:${LOCAL_RPCBIND_TAG}
+          docker tag localhost/${LOCAL_RPC_STATD_IMAGE}:${LOCAL_RPC_STATD_TAG} ${LOCAL_RPC_STATD_IMAGE}:${LOCAL_RPC_STATD_TAG}
+          docker tag localhost/${LOCAL_DBUS_DAEMON_IMAGE}:${LOCAL_DBUS_DAEMON_TAG} ${LOCAL_DBUS_DAEMON_IMAGE}:${LOCAL_DBUS_DAEMON_TAG}
+          docker tag localhost/${LOCAL_NFS_GANESHA_IMAGE}:${LOCAL_NFS_GANESHA_TAG} ${LOCAL_NFS_GANESHA_IMAGE}:${LOCAL_NFS_GANESHA_TAG}
+          docker tag localhost/${LOCAL_GANESHA_CONFIG_RELOAD_IMAGE}:${LOCAL_GANESHA_CONFIG_RELOAD_TAG} ${LOCAL_GANESHA_CONFIG_RELOAD_IMAGE}:${LOCAL_GANESHA_CONFIG_RELOAD_TAG}
+          docker tag localhost/${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG} ${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG}
       - name: Test
         run: |
           make -C deploy/docker-compose check-nobuild
@@ -101,6 +130,9 @@ jobs:
     name: Test Kubernetes (using Kind)
     needs:
       - build
+    strategy:
+      matrix:
+        docker: [docker, podman]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -108,7 +140,7 @@ jobs:
       - name: Retrieve artifacts
         uses: actions/download-artifact@v4.3.0
         with:
-          name: container-images
+          name: container-images-${{ matrix.docker }}
           path: container-images/
       - name: Build manifests
         run: |
@@ -116,6 +148,17 @@ jobs:
       - name: Import container images
         run: |
           cat container-images/build.tar.gz | gzip -d | docker load
+      - name: Re-tag container images
+        if: ${{ matrix.docker == 'podman' }}
+        run: |
+          source .env
+
+          docker tag localhost/${LOCAL_RPCBIND_IMAGE}:${LOCAL_RPCBIND_TAG} ${LOCAL_RPCBIND_IMAGE}:${LOCAL_RPCBIND_TAG}
+          docker tag localhost/${LOCAL_RPC_STATD_IMAGE}:${LOCAL_RPC_STATD_TAG} ${LOCAL_RPC_STATD_IMAGE}:${LOCAL_RPC_STATD_TAG}
+          docker tag localhost/${LOCAL_DBUS_DAEMON_IMAGE}:${LOCAL_DBUS_DAEMON_TAG} ${LOCAL_DBUS_DAEMON_IMAGE}:${LOCAL_DBUS_DAEMON_TAG}
+          docker tag localhost/${LOCAL_NFS_GANESHA_IMAGE}:${LOCAL_NFS_GANESHA_TAG} ${LOCAL_NFS_GANESHA_IMAGE}:${LOCAL_NFS_GANESHA_TAG}
+          docker tag localhost/${LOCAL_GANESHA_CONFIG_RELOAD_IMAGE}:${LOCAL_GANESHA_CONFIG_RELOAD_TAG} ${LOCAL_GANESHA_CONFIG_RELOAD_IMAGE}:${LOCAL_GANESHA_CONFIG_RELOAD_TAG}
+          docker tag localhost/${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG} ${LOCAL_CONTAINED_GANESHA_TEST_IMAGE}:${LOCAL_CONTAINED_GANESHA_TEST_TAG}
       - name: Start Kind cluster
         uses: helm/kind-action@v1.12.0
         with:
@@ -133,15 +176,42 @@ jobs:
         run: |
           make -C deploy/kubernetes kubectl-local-delete
 
+  test-podman:
+    name: Test podman
+    needs:
+      - build
+    strategy:
+      matrix:
+        docker: [docker, podman]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+      - name: Retrieve artifacts
+        uses: actions/download-artifact@v4.3.0
+        with:
+          name: container-images-${{ matrix.docker }}
+          path: container-images/
+      - name: Import container images
+        run: |
+          cat container-images/build.tar.gz | gzip -d | podman load
+      - name: Test
+        run: |
+          make -C deploy/podman check-nobuild
+      - name: Cleanup
+        run: |
+          make -C deploy/podman down
+
   tests-success:
     runs-on: ubuntu-latest
     if: ${{ always () }}
     needs:
       - test-docker-compose
       - test-kubernetes
+      - test-podman
     steps:
       - name: Ensure tests succeeded
-        if: "${{ (needs.test-docker-compose.result != 'success') || (needs.test-kubernetes.result != 'success') }}"
+        if: "${{ (needs.test-docker-compose.result != 'success') || (needs.test-kubernetes.result != 'success') || (needs.test-podman.result != 'success') }}"
         run: |
           exit 1
 
@@ -158,7 +228,7 @@ jobs:
       - name: Retrieve artifacts
         uses: actions/download-artifact@v4.3.0
         with:
-          name: container-images
+          name: container-images-docker
           path: container-images/
       - name: Import container images
         run: |
@@ -200,7 +270,7 @@ jobs:
       - name: Retrieve artifacts
         uses: actions/download-artifact@v4.3.0
         with:
-          name: container-images
+          name: container-images-docker
           path: container-images/
       - name: Import container images
         run: |
