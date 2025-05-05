@@ -54,6 +54,7 @@ check-nobuild: $(MANIFEST) | up-local-nobuild ## Run 'podman play kube' using lo
 		--rm \
 		--pull=never \
 		--read-only \
+		--restart=no \
 		--cap-drop=ALL \
 		--cap-add=NET_BIND_SERVICE \
 		--pod=$(POD) \
