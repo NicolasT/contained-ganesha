@@ -8,6 +8,7 @@ as deployment files for the following container environments:
 
 - [docker-compose](https://docs.docker.com/compose/)
 - [Kubernetes](https://kubernetes.io)
+- [Podman](https://podman.io)
 
 To build the container images, run `make containers`. See `deploy/` for more
 information on the supported deployment mechanisms.
