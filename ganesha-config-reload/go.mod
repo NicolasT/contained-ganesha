@@ -71,7 +71,7 @@ require (
 	k8s.io/apiserver v0.33.4 // indirect
 	k8s.io/client-go v0.33.4 // indirect
 	k8s.io/component-base v0.33.4 // indirect
-	k8s.io/component-helpers v0.33.3 // indirect
+	k8s.io/component-helpers v0.33.4 // indirect
 	k8s.io/controller-manager v0.33.3 // indirect
 	k8s.io/csi-translation-lib v0.33.3 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
