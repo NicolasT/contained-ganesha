@@ -10,7 +10,7 @@ require (
 	github.com/go-logr/stdr v1.2.2
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.38.2
-	golang.org/x/sync v0.16.0
+	golang.org/x/sync v0.17.0
 	k8s.io/kubernetes v1.33.4
 	sigs.k8s.io/controller-runtime v0.21.0
 )
@@ -64,11 +64,11 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/net v0.43.0 // indirect
+	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/term v0.34.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/term v0.35.0 // indirect
+	golang.org/x/text v0.29.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250707201910-8d1bb00bc6a7 // indirect
 	google.golang.org/grpc v1.75.0 // indirect
