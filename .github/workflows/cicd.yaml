@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6.0.0
       - name: Install Go
-        uses: actions/setup-go@v6.0.0
+        uses: actions/setup-go@v6.1.0
         with:
           cache-dependency-path: |
             ganesha-config-reload/go.sum
