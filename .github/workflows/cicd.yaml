@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
       - name: Install Go
         uses: actions/setup-go@v6.0.0
         with:
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
       - name: Fetch tags
         run: |
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
       - name: Retrieve artifacts
         uses: actions/download-artifact@v6.0.0
         with:
@@ -136,7 +136,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
       - name: Retrieve artifacts
         uses: actions/download-artifact@v6.0.0
         with:
@@ -186,7 +186,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
       - name: Retrieve artifacts
         uses: actions/download-artifact@v6.0.0
         with:
@@ -224,7 +224,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
       - name: Retrieve artifacts
         uses: actions/download-artifact@v6.0.0
         with:
@@ -266,7 +266,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
       - name: Retrieve artifacts
         uses: actions/download-artifact@v6.0.0
         with:
