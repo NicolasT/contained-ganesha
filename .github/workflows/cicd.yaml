@@ -83,7 +83,7 @@ jobs:
         env:
           DOCKER: ${{ matrix.docker }}
       - name: Archive artifacts
-        uses: actions/upload-artifact@v6.0.0
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: container-images-${{ matrix.docker }}
           path: container-images
